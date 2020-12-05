@@ -5,36 +5,36 @@ seats = Array.new
 lines.each do |line|
   row = line.strip.split('')
 
-  upper_bound = 127
-  lower_bound = 0
-  upper_column = 7
-  lower_column = 0
+  seat_row = 0
+  seat_col = 0
+  row_n = 64
+  col_n = 4
   row.each do |char|
     case char
     when 'F'
-      upper_bound -= (upper_bound - lower_bound) / 2
+      row_n /= 2
     when 'B'
-      lower_bound += (upper_bound - lower_bound) / 2
+      seat_row += row_n
+      row_n /= 2
     when 'R'
-      lower_column += (upper_column - lower_column) / 2
+      seat_col += col_n
+      col_n /= 2 
     else
-      upper_column -= (upper_column - lower_column) / 2
+      col_n /= 2 
     end
   end
 
-  seat_id = upper_bound * 8 + upper_column
+  seat_id = seat_row * 8 + seat_col
   seats.push(seat_id)
   max_seat_id = seat_id if max_seat_id < seat_id
 end
 
-seats = seats.sort
+seats_sorted = seats.sort
 
-seats.each_with_index do |seat, index|
+seats_sorted.each_with_index do |seat, index|
   next if index + 1 >= seats.length 
-  if seats[index + 1] - seat == 2
-    if seats.count(seat + 9) == 1
-      puts seat + 1
-    end
+  if seats_sorted[index + 1] - seat == 2
+    puts seat + 1
   end 
 end
 
