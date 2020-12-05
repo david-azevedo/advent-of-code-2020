@@ -1,4 +1,4 @@
-lines = File.readlines('../data/day5.txt')
+lines = File.readlines("../data/#{__FILE__.split('.')[0]}.txt")
 
 max_seat_id = 0
 min_seat_id = 999
