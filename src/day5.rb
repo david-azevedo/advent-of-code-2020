@@ -1,41 +1,18 @@
 lines = File.readlines('../data/day5.txt')
 
 max_seat_id = 0
+min_seat_id = 999
 seats = Array.new
+
 lines.each do |line|
-  row = line.strip.split('')
-
-  seat_row = 0
-  seat_col = 0
-  row_n = 64
-  col_n = 4
-  row.each do |char|
-    case char
-    when 'F'
-      row_n /= 2
-    when 'B'
-      seat_row += row_n
-      row_n /= 2
-    when 'R'
-      seat_col += col_n
-      col_n /= 2 
-    else
-      col_n /= 2 
-    end
-  end
-
-  seat_id = seat_row * 8 + seat_col
+  binary_row = line.gsub('F','0').gsub('L','0').gsub('B','1').gsub('R','1')
+  seat_id = binary_row.to_i(2)
   seats.push(seat_id)
   max_seat_id = seat_id if max_seat_id < seat_id
+  min_seat_id = seat_id if min_seat_id > seat_id
 end
 
-seats_sorted = seats.sort
-
-seats_sorted.each_with_index do |seat, index|
-  next if index + 1 >= seats.length 
-  if seats_sorted[index + 1] - seat == 2
-    puts seat + 1
-  end 
-end
+all_seats = [*min_seat_id..max_seat_id]
+puts all_seats - seats
 
 puts max_seat_id
