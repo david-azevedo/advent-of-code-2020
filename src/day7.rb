@@ -2,7 +2,9 @@
 
 lines = File.readlines("../data/#{__FILE__.split('.')[0]}.txt")
 
-mappings = {}
+target = 'shiny gold' 
+outter_mappings = {}
+inner_mappings = {}
 
 lines.each do |line|
   outter, inner = line.split('contain')
@@ -13,41 +15,55 @@ lines.each do |line|
 
   # Building the hash map in different directions depending on the objective
   # Mapping of bags to bags which they are contained in.
-  # inner.each do |i|
-  #   if mappings[i]
-  #     mappings[i] |= [outter]
-  #   else
-  #     mappings[i] = [outter]
-  #   end
-  # end
+  inner.each do |i|
+    if inner_mappings[i[0]]
+      inner_mappings[i[0]] |= [outter]
+    else
+      inner_mappings[i[0]] = [outter]
+    end
+  end
 
   # Mapping of bags to bags they must contain
-  if mappings[outter]
-    mappings[outter] |= inner
+  if outter_mappings[outter]
+    outter_mappings[outter] |= inner
   else
-    mappings[outter] = inner
+    outter_mappings[outter] = inner
   end
 end
 
-seen = mappings['shiny gold'].clone
-total_count = 0
+seen_inner = inner_mappings[target]
+part1 = seen_inner
+
+while seen_inner.length.positive?
+  elem = seen_inner.first
+  elems = inner_mappings[elem]
+  part1 |= elems || []
+  seen_inner |= elems || []
+  seen_inner.delete(elem)
+end
+
+part1 = part1.length
+
+seen_outter = outter_mappings[target]
+part2 = 0
 current_mult = 1
 
-while seen.length.positive?
-  elem = seen.first
-  elems = mappings[elem[0]]
+while seen_outter.length.positive?
+  elem = seen_outter.first
+  elems = outter_mappings[elem[0]]
 
   current_mult = elem[1].to_i
-  total_count += current_mult
+  part2 += current_mult
 
   new_elems = []
   elems.each do |e|
     new_elems.push([e[0], (current_mult * e[1].to_i).to_s])
   end
 
-  seen.push(*new_elems)
+  seen_outter.push(*new_elems)
   # Delete only the first occurence
-  seen.delete_at(seen.index(elem))
+  seen_outter.delete_at(seen_outter.index(elem))
 end
 
-puts total_count
+puts part1
+puts part2
