@@ -1,36 +1,44 @@
 # frozen_string_literal: true
+require 'set'
 
 lines = File.readlines("../data/#{__FILE__.split('.')[0]}.txt")
+
+# Apply the instruction to a given pair of accumulator and offset
+def run_instruction(instruction, acc, offset)
+  ins, value = instruction.split(' ') # "acc +14" -> ["acc", "+14"]
+
+  case ins
+  when 'acc'
+    acc += value.to_i
+    offset += 1
+  when 'jmp'
+    offset += value.to_i
+  when 'nop'
+    offset += 1
+  end
+  return acc, offset
+end
 
 # Run the program until we either reach the end or find a repeated instruction
 def run_program(lines)
   acc = 0
   offset = 0
-  offsets_seen = {}
-  # Small otimization for Part 2 only storing jmp and nop instructions
-  # that might be incorrect
-  instructions_to_change = []
+  # Keeping track of all the offsets we have seen so far
+  offsets_seen = Set.new
 
   loop do
-    return acc, 'terminated' if offset >= lines.length
+    # If we reach the end they return the accumulator and 'terminated' status
+    return acc, 'terminated' if offset >= lines.length || offset < 0
 
-    return acc, instructions_to_change if offsets_seen[offset]
+    # If we see a repeat instruction (loop found) return the accumulator
+    # and the list of seen instructions
+    return acc, offsets_seen.to_a if offsets_seen.include?(offset)
 
-    offsets_seen[offset] = 1
-    ins, value = lines[offset].split(' ')
+    # Add this offset to our list of seen offsets
+    offsets_seen << offset
 
-    case ins
-    when 'acc'
-      acc += value.to_i
-    when 'jmp'
-      instructions_to_change.push(offset)
-      offset += value.to_i
-      next
-    when 'nop'
-      instructions_to_change.push(offset)
-    end
-    # Next instruction
-    offset += 1
+    # Update the accumulator and offset by running the instruction
+    acc, offset = run_instruction(lines[offset], acc, offset)
   end
 end
 
