@@ -1,19 +1,24 @@
-values = File.readlines('../data/day1.txt').map(&:to_i)
+require 'set'
 
-# Brute force solution
-pairs = values.permutation(3).to_a
+values = File.readlines("../data/#{__FILE__.split('.')[0]}.txt").map(&:to_i).to_set
 
-pairs.each do |x|
-  if x[0] + x[1] + x[2] == 2020
-    puts x[0] * x[1] * x[2]
-    break
-  end 
+def part1(values, target)
+  values.each do |x|
+    return x * (target - x) if values.include?(target - x)
+  end
+  nil
 end
 
-#Big brain solution - Part 1
-# values.each do |x|
-#   if values.include?(2020 - x)
-#     puts x * (2020 - x)
-#     break
-#   end
-# end
+def part2(values, target)
+  values.each do |x|
+    complement = target - x
+    result = part1(values, complement)
+    return result * x if result
+  end
+end
+
+part1 = part1(values, 2020)
+part2 = part2(values, 2020)
+
+puts "Part1: #{part1}"
+puts "Part2: #{part2}"
