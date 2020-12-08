@@ -9,14 +9,12 @@ def run_instruction(instruction, acc, offset)
 
   case ins
   when 'acc'
-    acc += value.to_i
-    offset += 1
+    [acc + value.to_i, offset + 1]
   when 'jmp'
-    offset += value.to_i
+    [acc, offset + value.to_i]
   when 'nop'
-    offset += 1
+    [acc, offset + 1]
   end
-  return acc, offset
 end
 
 # Run the program until we either reach the end or find a repeated instruction
