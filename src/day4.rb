@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 lines = File.readlines('../data/day4.txt').map { |l| l.gsub(/\R+/, ' ') }
 
 def validate_passport(passport)
@@ -38,7 +40,7 @@ def validate_passport(passport)
   return false unless hcl.match(/#[0-9a-f]{6}\Z/)
 
   ecl = values[keys.index('ecl')]
-  return false unless ['amb','blu','brn','gry','grn','hzl','oth'].include?(ecl)
+  return false unless %w[amb blu brn gry grn hzl oth].include?(ecl)
 
   pid = values[keys.index('pid')]
   return false unless pid.match(/\A[0-9]{9}\Z/)

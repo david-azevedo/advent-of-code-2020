@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 lines = File.readlines("../data/#{__FILE__.split('.')[0]}.txt").map(&:strip)
 
 count = 0

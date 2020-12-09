@@ -2,7 +2,7 @@
 
 lines = File.readlines("../data/#{__FILE__.split('.')[0]}.txt")
 
-target = 'shiny gold' 
+target = 'shiny gold'
 outter_mappings = {}
 inner_mappings = {}
 

@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require 'set'
 
-values = File.readlines("../data/#{__FILE__.split('.')[0]}.txt").map(&:to_i).to_set
+filename = "../data/#{__FILE__.split('.')[0]}.txt"
+values = File.readlines(filename).map(&:to_i).to_set
 
 def part1(values, target)
   values.each do |x|
