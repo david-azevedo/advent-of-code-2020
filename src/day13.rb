@@ -58,7 +58,7 @@ end
 # Reduce sum to be < N
 sum %= N
 
-# Smallest positive solution is N + Sum(ai * Ni * Mi)
+# Smallest positive solution is N - Sum(ai * Ni * Mi)
 part2 = N - sum
 
 puts "Part1: #{part1}"
