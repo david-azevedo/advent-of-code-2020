@@ -30,6 +30,8 @@ def extended_gcd(a, b)
     old_s, s = s, old_s - quotient * s
     old_t, t = t, old_t - quotient * t
   end
+  # When a and b are co-primes
+  # Mi and mi such that a * Mi + b * mi = 1
   [old_s, old_t]
 end
 
