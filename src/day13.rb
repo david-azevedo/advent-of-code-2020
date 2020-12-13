@@ -3,40 +3,14 @@
 lines = File.readlines("../data/#{__FILE__.split('.')[0]}.txt")
 
 earliest = lines[0].to_i
-buses = lines[1].strip.split(',').reject { |b| b == 'x' }.map(&:to_i)
-bus_waiting_time = buses.map { |b| b - (earliest % b) }
-min_waiting = bus_waiting_time.min
-bus_with_min_waiting = buses[bus_waiting_time.index(min_waiting)]
-
-part1 = bus_with_min_waiting * min_waiting
-
-# Testing if num is solution to the given constraints
-def solution?(num, ni, ai)
-  ni.length.times do |i|
-    return false unless num % ni[i] == ai[i]
-  end
-  true
-end
-
-# extended Euclidean algorithm used to compute Mi and mi
-def extended_gcd(a, b)
-  old_r = a
-  r = b
-  old_s = t = 1
-  s = old_t = 0
-  while r != 0
-    quotient = old_r / r
-    old_r, r = r, old_r - quotient * r
-    old_s, s = s, old_s - quotient * s
-    old_t, t = t, old_t - quotient * t
-  end
-  # When a and b are co-primes
-  # Mi and mi such that a * Mi + b * mi = 1
-  [old_s, old_t]
-end
-
 buses = lines[1].strip.split(',')
+buses_cleaned = buses.reject { |b| b == 'x' }.map(&:to_i)
+wait_times = buses_cleaned.map { |b| b - (earliest % b) }
+
+part1 = buses_cleaned[wait_times.index(wait_times.min)] * wait_times.min
+
 # Chinese Remainder Theorem arrays
+# This only works because all ni are prime, making them coprime between each other.
 ni = []
 ai = []
 buses.length.times do |i|
@@ -47,21 +21,19 @@ buses.length.times do |i|
   ai.append(i % value)
 end
 
-# This number represents the number of minutes between
-# each consecutive occurence of the constraints 
-N = ni.inject(:*)
-
-sum = 0
+# This is Search by sieving https://en.wikipedia.org/wiki/Chinese_remainder_theorem#Search_by_sieving
+# We find the first timestamp where n1 and n2 match the criteria them increment by lcm = LCM(n1,n2) until
+# we find a timestamp where the criteria for n3 is also met. We then update lcm to be LCM(lcm, n3) and
+# continue to increment until the criteria for n4 is also met. So on until all constraints are met.
+lcm = part2 = ni[0]
 ni.length.times do |i|
-  # ai * Ni * Mi
-  sum += ai[i] * (N / ni[i]) * extended_gcd(N / ni[i], ni[i])[0]
+  loop do
+    break if ((part2 + ai[i]) % ni[i]).zero?
+
+    part2 += lcm
+  end
+  lcm = lcm.lcm(ni[i])
 end
-
-# Reduce sum to be < N
-sum %= N
-
-# Smallest positive solution is N - Sum(ai * Ni * Mi)
-part2 = N - sum
 
 puts "Part1: #{part1}"
 puts "Part2: #{part2}"
