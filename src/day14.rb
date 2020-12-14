@@ -3,13 +3,15 @@
 lines = File.readlines("../data/#{__FILE__.split('.')[0]}.txt")
 
 def convert_floating_to_mem(floating)
-  float_count = floating.count('X')
-
-  perms = [0, 1].repeated_permutation(float_count).to_a
+  # Generate all possible combinations for the floating points
+  perms = [0, 1].repeated_permutation(floating.count('X')).to_a
   result = []
+  # For each combination generate the correct number
   perms.each do |perm|
     value = floating
     perm.each do |bit|
+      # This works because sub substitutes only the first occurence
+      # while gsub substitutes all occurences
       value = value.sub('X', bit.to_s)
     end
     result.append(value.to_i(2))
@@ -19,24 +21,19 @@ def convert_floating_to_mem(floating)
 end
 
 def apply_mask_v2(mask, value)
-  return 0 if mask == ''
-
   binary = value.to_i.to_s(2)
   binary.prepend('0') while mask.length > binary.length
 
   result = '0' * binary.length
   binary.length.times do |i|
-    result[i] = mask[i] if mask[i] == '1'
+    result[i] = mask[i]
     result[i] = binary[i] if mask[i] == '0'
-    result[i] = mask[i] if mask[i] == 'X'
   end
 
   convert_floating_to_mem(result)
 end
 
 def apply_mask_v1(mask, value)
-  return 0 if mask == ''
-
   binary = value.to_i.to_s(2)
   binary.prepend('0') while mask.length > binary.length
 
@@ -76,7 +73,7 @@ lines.each do |line|
     address, value = line.split('=').map(&:strip)
     address = address.match(/\[([0-9]*)\]/).captures[0].to_i
     addresses = apply_mask_v2(bitmask, address)
-    addresses.each do |adr|
+    addresses.each do |adr| # Write multiple memory addresses at once
       memory[adr] = value.to_i
     end
   end
