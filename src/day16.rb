@@ -2,25 +2,16 @@
 
 lines = File.readlines("../data/#{__FILE__.split('.')[0]}.txt")
 
-# Check if the value is valid for any of the constraints
-def valid_for_rules?(number, rules)
-  rules.values.each do |ranges|
-    ranges.each do |range|
-      return true if number >= range[0] && number <= range[1]
-    end
-  end
-  false
-end
-
 # Return an array with all the rules that this number is valid in
 def matching_rules(number, rules)
   result = []
   rules.each do |rule, ranges|
-    valid = false
     ranges.each do |range|
-      valid = true if number >= range[0] && number <= range[1]
+      next if number < range[0] || number > range[1]
+
+      result.append(rule)
+      break
     end
-    result.append(rule) if valid
   end
   result
 end
@@ -50,39 +41,28 @@ lines.each do |line| # Input parsing
     unless line.start_with?('nearby tickets')
       other_tickets.append(line.split(',').map(&:to_i))
     end
-  else
-    puts 'This should not happen'
   end
 end
 
 part1 = 0
 valid_other_tickets = []
+possible = {}
 
 # Drop any ticket that has at least 1 number that is not valid
-# for any rule. For each such number add it to part 1 result
+# for any rule. For each such number add it to part 1 result.
+# For every valid ticket build a list of possible field names.
 other_tickets.each do |ticket|
   valid = true
-  ticket.each do |number|
-    unless valid_for_rules?(number, rules)
+  ticket.each_with_index do |number, idx|
+    match = matching_rules(number, rules)
+    if match.empty?
       valid = false
       part1 += number
+    else
+      possible[idx] ? possible[idx] &= match : possible[idx] = match
     end
   end
   valid_other_tickets.append(ticket) if valid
-end
-
-possibilities = {}
-
-# For every valid ticket build a list of possible field names.
-valid_other_tickets.each do |ticket|
-  ticket.each_with_index do |number, index|
-    rules_matching = matching_rules(number, rules)
-    if possibilities[index]
-      possibilities[index] &= rules_matching
-    else
-      possibilities[index] = rules_matching
-    end
-  end
 end
 
 seen = []
@@ -91,12 +71,13 @@ correct_name = {}
 # Follow the possibilities and create the correct name for each
 # value by exclusion
 while seen.length < my_ticket.length
-  possibilities.each do |index, rule_list|
-    aux = rule_list - seen
-    if aux.length == 1
-      correct_name[index] = aux[0]
-      seen.append(aux[0])
-    end
+  possible.each do |index, rule_list|
+    diff = rule_list - seen
+    next if diff.length != 1
+
+    correct_name[index] = diff[0]
+    seen.append(diff[0])
+    break
   end
 end
 
