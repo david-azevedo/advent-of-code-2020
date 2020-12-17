@@ -4,7 +4,7 @@ require 'set'
 
 lines = File.readlines("../data/#{__FILE__.split('.')[0]}.txt").map(&:strip)
 
-puts 'Go grab a coffe this will take a while! It took around 2min:10.60sec on my machine'
+puts 'Go grab a coffe this will take a while! It took around 44s on my machine'
 
 # Only the positions of the active cubes are relevant
 active_3d = Set.new
@@ -52,12 +52,16 @@ def count_neighbors_3d(row, col, z_axis, active)
   count
 end
 
-6.times do
+size = lines.length
+cycles = 6
+cycles.times do |cycle|
   new_active_3d = Set.new
   new_active_4d = Set.new
-  (-13..13).each do |row|
-    (-13..13).each do |col|
-      (-6..6).each do |z_axis|
+  x_y_size = size + cycle # Range increases each cycle
+  z_w_size = cycle + 1 # Range increases each cycle
+  (-x_y_size..x_y_size).each do |row|
+    (-x_y_size..x_y_size).each do |col|
+      (-z_w_size..z_w_size).each do |z_axis|
         # For every position (row, col, z_axis)
         current_pos = [row, col, z_axis]
         neighbors = count_neighbors_3d(row, col, z_axis, active_3d)
@@ -66,7 +70,7 @@ end
         elsif neighbors == 3
           new_active_3d.add(current_pos)
         end
-        (-6..6).each do |w_axis|
+        (-z_w_size..z_w_size).each do |w_axis|
           # For every position (row, col, z_axis, w_axis)
           current_pos = [row, col, z_axis, w_axis]
           neighbors = count_neighbors_4d(row, col, z_axis, w_axis, active_4d)
